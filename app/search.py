@@ -3,7 +3,6 @@ from elasticsearch_dsl import Search
 from bs4 import BeautifulSoup
 import pdb
 from datetime import datetime
-from settings import ES_URL
 import os
 
 class NewsArticle():
