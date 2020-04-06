@@ -9,11 +9,12 @@ import pdb
 from time import gmtime, strftime
 import json
 import hashlib
+import os
 
 def main():
 	date = strftime("%Y-%m-%d", gmtime())
 	index_names = [date + '-' + name for name in NEWS_OUTLETS]
-	es = Elasticsearch('http://localhost:9200')
+	es = Elasticsearch(os.environ['ES_URL'])
 
 	for index_name in index_names:
 		data = get_data_from_s3(index_name)

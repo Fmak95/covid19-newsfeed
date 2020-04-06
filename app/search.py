@@ -3,6 +3,8 @@ from elasticsearch_dsl import Search
 from bs4 import BeautifulSoup
 import pdb
 from datetime import datetime
+from settings import ES_URL
+import os
 
 class NewsArticle():
 	def __init__(self, title, description, link, pubDate):
@@ -20,7 +22,8 @@ def search(search_term, num_results):
 	'''
 		Searches ES database and returns list of NewsArticle objects
 	'''
-	es = Elasticsearch('http://localhost:9200')
+	# es = Elasticsearch('http://localhost:9200')
+	es = Elasticsearch(os.environ['ES_URL'])
 	news_articles = []
 
 	# Searching Title of News Article
