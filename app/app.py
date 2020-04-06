@@ -7,7 +7,8 @@ app = Flask(__name__)
 
 @app.route('/', methods = ['GET', 'POST'])
 def index():
-	return render_template('index.html')
+	news_articles = search('COVID-19', 10) #Default search term
+	return render_template('index.html', news_articles = news_articles)
 
 @app.route('/search', methods = ['GET', 'POST'])
 def search_news():
