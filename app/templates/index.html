@@ -1,26 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-	<nav class="navbar navbar-expand-lg navbar-light blue-grey mb-4">
-		<div class="navbar-collapse" id="navbarSupportedContent">
 
-				<form id="search-bar" action="/search" class="form-inline">
-					<div class="custom-control custom-radio custom-control-inline">
-					  <input type="radio" class="custom-control-input" id="relevance_radio_btn" name="sort_by" value="relevance" checked>
-					  <label class="custom-control-label" for="relevance_radio_btn">Relevance</label>
-					</div>
-
-					<div class="custom-control custom-radio custom-control-inline">
-					  <input type="radio" class="custom-control-input" id="date_radio_btn" name="sort_by" value="date">
-					  <label class="custom-control-label" for="date_radio_btn">Date</label>
-					</div>
-					<input class="form-control" type="text" placeholder="Search..." name="search" value="{{search_term}}">
-					<button type="submit" class="btn"><i class="fa fa-search">Search</i></button>
-				</form>
-		</div>
-	</nav>
-</div>
 
 <div class="container">
 	{% for news_article in news_articles %}
