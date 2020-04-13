@@ -143,7 +143,7 @@ def _get_init_values_for_model(historical_df, start_date):
 	# Susceptible = Total Population - (Exposed + Infected + Removed)
 	S_0 = N - (E_0 + I_0 + R_0 + D_0)
 
-	return S_0, E_0, I_0, R_0
+	return S_0, E_0, I_0, R_0, D_0
 
 def _get_model_hyperparams(params):
 	'''
@@ -161,7 +161,8 @@ def _get_model_hyperparams(params):
 	beta = R_0*gamma
 	return beta, sigma, gamma
 
-def base_seir_model(params, time_steps, historical_df, start_date):
+def base_seir_model(params, time_steps, historical_df, start_date, 
+					value_vars = ['Exposed','Infected','Hospitalized']):
 	'''
 	SEIR Model to forecast the outcome of the COVID-19 pandemic.
 	For more details about the model see this link:
@@ -173,17 +174,17 @@ def base_seir_model(params, time_steps, historical_df, start_date):
 	if type(start_date) == str:
 		start_date = datetime.strptime(start_date, '%m/%d/%y')
 
-	S_0, E_0, I_0, R_0 = _get_init_values_for_model(historical_df, start_date)
+	S_0, E_0, I_0, R_0, D_0 = _get_init_values_for_model(historical_df, start_date)
 	age_data_df = init_social_demographic_data()
 
 	# Estimate initial people in hospital using social demographic data
 	round(I_0 * age_data_df.distribution * age_data_df.hospitalization_rate).sum()
 	H_0 = round(I_0 * age_data_df.distribution * age_data_df.hospitalization_rate).sum()
 
-	N = S_0 + E_0 + I_0 + R_0 # Total Population
+	N = S_0 + E_0 + I_0 + R_0 + D_0 # Total Population
 	beta, sigma, gamma = _get_model_hyperparams(params)
 	
-	S, E, I, R, H = [S_0], [E_0], [I_0], [R_0], [H_0]
+	S, E, I, R, D, H = [S_0], [E_0], [I_0], [R_0], [D_0], [H_0]
 	dates = [start_date]
 
 	# Start simulation
@@ -197,6 +198,8 @@ def base_seir_model(params, time_steps, historical_df, start_date):
 		# current hospital count = current infected * age distribution * hospitalization rate
 		next_H = round(next_I * age_data_df.distribution * age_data_df.hospitalization_rate).sum()
 
+
+
 		S.append(next_S)
 		E.append(next_E)
 		I.append(next_I)
@@ -206,14 +209,14 @@ def base_seir_model(params, time_steps, historical_df, start_date):
 
 	results_df = pd.DataFrame({
 		'dates': dates,
-		'S': S,
-		'E': E,
-		'I': I,
-		'R': R,
-		'H': H})
+		'Susceptible': S,
+		'Exposed': E,
+		'Infected': I,
+		'Recovered': R,
+		'Hospitalized': H})
 	
-	plot = px.line(results_df.drop(['R','S'],axis=1)\
-		.melt(id_vars='dates'), x='dates', y='value', color='variable')
+	results_df = results_df.melt(id_vars='dates',value_vars = value_vars)
+	plot = px.line(results_df, x='dates', y='value', color='variable')
 
 	return json.dumps(plot, cls=plotly.utils.PlotlyJSONEncoder)
 
