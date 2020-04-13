@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+from data.parameters import CDR
 import plotly.express as px
 import plotly
 import plotly.graph_objs as go
@@ -162,7 +163,7 @@ def _get_model_hyperparams(params):
 	return beta, sigma, gamma
 
 def base_seir_model(params, time_steps, historical_df, start_date, 
-					value_vars = ['Exposed','Infected','Hospitalized']):
+					value_vars = ['Exposed','Infected','Hospitalized', 'Total Deaths']):
 	'''
 	SEIR Model to forecast the outcome of the COVID-19 pandemic.
 	For more details about the model see this link:
@@ -176,6 +177,7 @@ def base_seir_model(params, time_steps, historical_df, start_date,
 
 	S_0, E_0, I_0, R_0, D_0 = _get_init_values_for_model(historical_df, start_date)
 	age_data_df = init_social_demographic_data()
+	num_hospital_beds = 93527
 
 	# Estimate initial people in hospital using social demographic data
 	round(I_0 * age_data_df.distribution * age_data_df.hospitalization_rate).sum()
@@ -198,13 +200,22 @@ def base_seir_model(params, time_steps, historical_df, start_date,
 		# current hospital count = current infected * age distribution * hospitalization rate
 		next_H = round(next_I * age_data_df.distribution * age_data_df.hospitalization_rate).sum()
 
-
+		# If hospital care avaialble, death rate is lower
+		if next_H <= num_hospital_beds:
+			next_D = D[-1] + round(next_H * age_data_df.distribution * age_data_df.hospitalized_death_rate).sum()
+		# If hospital care unabailable, death rate is higher (we use the critical death rate, CDR, which is ~12%)
+		# CDR gotten from: https://wwwnc.cdc.gov/eid/article/26/6/20-0233_article
+		else:
+			deaths_with_hospital_care = round(num_hospital_beds * age_data_df.distribution * age_data_df.hospitalized_death_rate).sum()
+			deahts_no_hospital_care = round((next_H - num_hospital_beds) * CDR)
+			next_D = D[-1] + deaths_with_hospital_care + deahts_no_hospital_care
 
 		S.append(next_S)
 		E.append(next_E)
 		I.append(next_I)
 		R.append(next_R)
 		H.append(next_H)
+		D.append(next_D)
 		dates.append(date)
 
 	results_df = pd.DataFrame({
@@ -213,7 +224,8 @@ def base_seir_model(params, time_steps, historical_df, start_date,
 		'Exposed': E,
 		'Infected': I,
 		'Recovered': R,
-		'Hospitalized': H})
+		'Hospitalized': H,
+		'Total Deaths': D})
 	
 	results_df = results_df.melt(id_vars='dates',value_vars = value_vars)
 	plot = px.line(results_df, x='dates', y='value', color='variable')
