@@ -81,7 +81,6 @@ def init_social_demographic_data():
 	'''
 	dirname = os.path.dirname(__file__)
 	filename = os.path.join(dirname, 'data/age_data_canada_2019.csv')
-	print(filename)
 	age_data_df = pd.read_csv(filename)
 	age_data_df['distribution'] = age_data_df.population / age_data_df.population.sum()
 

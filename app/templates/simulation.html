@@ -1,24 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container" id="historical_plot">
-	<h2>Plot of Historical Data: Last Updated on {{last_updated}}</h2>
-	<div id="historical_chart" class="chart">
-		<script>
-			var graphDiv = document.getElementById('historical_chart')
-			var historical_graphs = {{historical_plot | safe}};
-			Plotly.plot(graphDiv, historical_graphs, {});
-		</script>
+<div class="container d-flex">
+	<div class="justify-content-start">
+		<button type="button" id="historical_btn" class="btn btn-primary btn-lg mr-3">Historical Data</button>
+		<button type="button" id="forecast_btn" class="btn btn-primary btn-lg ml-3 mr-3">Forecast</button>
+		<button type="button" id="tuning_btn" class="btn btn-primary btn-lg ml-3 mr-3">Tuning</button>
 	</div>
 </div>
 
-<div class="container">
-	<h2>Simulation of Virus</h2>
+<hr>
+
+<div class="container" id="slider_form_container"></div>
+<div class="container mt-2" id="historical_plot">
+	<h2 id="plot_title">Plot of Historical Data (Last Updated : {{last_updated}})</h2>
+	<div id="historical_chart" class="chart">
+		<script>
+        	var graphDiv = document.getElementById('historical_chart');
+        	var graphs = {{plot | safe}};
+        	Plotly.plot(graphDiv,graphs,{});
+    	</script>
+	</div>
 </div>
 
 
+
+<!-- <div class="container">
+	<h2>Simulation of Virus</h2>
+</div> -->
+
+
 <!-- Form with sliders to manually tune model -->
-<div class="container">
+<!-- <div class="container">
 	<form name="simulate_form" action="/simulation">
 		<div class="row">
 			<div class="col-sm">
@@ -56,5 +69,7 @@
 			Plotly.plot(graphDiv, simulation_graphs, {});
 		</script>
 	</div>
-</div>
+</div> -->
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="{{url_for('static',filename='script.js')}}" type="text/javascript"></script>
 {% endblock %}

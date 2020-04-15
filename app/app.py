@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, make_response
 from search import search
 from data.parameters import R0, INC_PER, REC_TIME, TIME_STEPS
 import pandas as pd
@@ -7,6 +7,8 @@ import func
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import json
+import plotly
 
 historical_df, last_updated = func.get_covid_data()
 app = Flask(__name__)
@@ -32,25 +34,45 @@ def search_news():
 def simulation():
 
 	if request.method == 'GET':
-		historical_plot = func.create_plot_from_data(historical_df)
+		plot = func.create_plot_from_data(historical_df)
+		return render_template('simulation.html', 
+			last_updated=str(last_updated),
+			plot=plot)
 
-		# Get data from the form with sliders
-		R_0 = float(request.args.get('r_0', R0))
-		inc_per = float(request.args.get('inc_per', INC_PER))
-		rec_time = float(request.args.get('rec_time', REC_TIME))
-		time_steps = int(request.args.get('time_steps', TIME_STEPS))
-		
-		params = (R_0, inc_per, rec_time, time_steps)
-		simulation_plot = func.base_seir_model(params, time_steps, historical_df, last_updated)
+	if request.method == 'POST':
+		btn = request.form['btn']
 
-	return render_template('simulation.html', 
-		historical_plot=historical_plot, 
-		last_updated=str(last_updated),
-		R_0 = str(R_0),
-		inc_per = str(inc_per),
-		rec_time = str(rec_time),
-		time_steps = str(time_steps),
-		simulation_plot = simulation_plot)
+		if btn == 'historical_btn':
+			plot = func.create_plot_from_data(historical_df)
+			payload = {'last_updated': last_updated, 'plot': plot}
+
+		if btn == 'forecast_btn' or btn == 'simulate_btn':
+			# Get data from the form with sliders
+			R_0 = float(request.form.get('r_0', R0))
+			inc_per = float(request.form.get('inc_per', INC_PER))
+			rec_time = float(request.form.get('rec_time', REC_TIME))
+			time_steps = int(request.form.get('time_steps',TIME_STEPS))
+
+			# print(R_0,inc_per,rec_time,time_steps)
+
+			# R_0 = float(request.args.get('r_0', R0))
+			# inc_per = float(request.args.get('inc_per', INC_PER))
+			# rec_time = float(request.args.get('rec_time', REC_TIME))
+			# time_steps = int(request.args.get('time_steps', TIME_STEPS))
+
+			params = (R_0, inc_per, rec_time, time_steps)
+			plot = func.base_seir_model(params, time_steps, historical_df, last_updated)
+			payload = {'last_updated': last_updated, 
+				'plot': plot,
+				'R_0': R_0,
+				'inc_per': inc_per,
+				'rec_time': rec_time,
+				'time_steps': time_steps}
+
+		resp = make_response(payload)
+		resp.status_code = 200
+		resp.headers['Access-Control-Allow-Origin'] = '*'
+		return resp
 
 
 if __name__ == '__main__':

@@ -13,3 +13,4 @@ Currently pulling top news stories from Ontario focused news outlets such as:
 
 ## COVID Simulator
 Created a model to simulate how the virus will pan out, modeled with a SEIR model. The model can be tuned based on certain virus parameters such as: Reproduction Number, Incubation Period, and Recovery Time and see how well the model reflects the real life data.
+
