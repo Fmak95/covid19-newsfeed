@@ -5,7 +5,7 @@
 	<div class="justify-content-start">
 		<button type="button" id="historical_btn" class="btn btn-primary btn-lg mr-3">Historical Data</button>
 		<button type="button" id="forecast_btn" class="btn btn-primary btn-lg ml-3 mr-3">Forecast</button>
-		<button type="button" id="tuning_btn" class="btn btn-primary btn-lg ml-3 mr-3">Tuning</button>
+		<!-- <button type="button" id="tuning_btn" class="btn btn-primary btn-lg ml-3 mr-3">Tuning</button> -->
 	</div>
 </div>
 
@@ -23,53 +23,6 @@
 	</div>
 </div>
 
-
-
-<!-- <div class="container">
-	<h2>Simulation of Virus</h2>
-</div> -->
-
-
-<!-- Form with sliders to manually tune model -->
-<!-- <div class="container">
-	<form name="simulate_form" action="/simulation">
-		<div class="row">
-			<div class="col-sm">
-				<p>Reproduction Number</p>
-			    <input type="range" name="r_0" id="r_0_id" value="{{R_0}}" min="0" max="10" step="0.05" oninput="r_0_out_id.value = r_0_id.value">
-			    <output name="r_0_out" id="r_0_out_id">{{R_0}}</output>
-			</div>
-			<div class="col-sm">
-			    <p>Incubation Period</p>
-			    <input type="range" name="inc_per" id="inc_per_id" value="{{inc_per}}" min="0" max="31" oninput="inc_per_out_id.value = inc_per_id.value">
-			    <output name="inc_per_out" id="inc_per_out_id">{{inc_per}}</output>
-			</div>
-			<div class="col-sm">
-			    <p>Recovery Time</p>
-			    <input type="range" name="rec_time" id="rec_time_id" value="{{rec_time}}" min="0" max="31" oninput="rec_time_out_id.value = rec_time_id.value">
-			    <output name="rec_time_out" id="rec_time_out_id">{{rec_time}}</output>
-			</div>
-			<div class="col-sm">
-			    <p>Time Steps</p>
-			    <input type="range" name="time_steps" id="time_steps_id" value="{{time_steps}}" min="1" max="730" oninput="time_steps_out_id.value = time_steps_id.value">
-			    <output name="time_steps_out" id="time_steps_out_id">{{time_steps}}</output>
-			</div>
-		</div>
-		<div class="mt-3 d-flex justify-content-start">
-			<button type="submit" class="btn btn-primary">Simulate</button>
-		</div>
-	</form>
-</div>
-
-<div class="container" id="simulation_plot">
-	<div id="simulation_chart" class="chart">
-		<script>
-			var graphDiv = document.getElementById('simulation_chart')
-			var simulation_graphs = {{simulation_plot | safe}};
-			Plotly.plot(graphDiv, simulation_graphs, {});
-		</script>
-	</div>
-</div> -->
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="{{url_for('static',filename='script.js')}}" type="text/javascript"></script>
 {% endblock %}

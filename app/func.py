@@ -169,8 +169,6 @@ def base_seir_model(params, time_steps, historical_df, start_date,
 		https://www.idmod.org/docs/hiv/model-seir.html#seirs-model
 	'''
 
-	################### TO DO #######################
-	# Add num hospitalized and num of deaths
 	if type(start_date) == str:
 		start_date = datetime.strptime(start_date, '%m/%d/%y')
 

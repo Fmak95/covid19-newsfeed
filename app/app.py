@@ -52,14 +52,6 @@ def simulation():
 			inc_per = float(request.form.get('inc_per', INC_PER))
 			rec_time = float(request.form.get('rec_time', REC_TIME))
 			time_steps = int(request.form.get('time_steps',TIME_STEPS))
-
-			# print(R_0,inc_per,rec_time,time_steps)
-
-			# R_0 = float(request.args.get('r_0', R0))
-			# inc_per = float(request.args.get('inc_per', INC_PER))
-			# rec_time = float(request.args.get('rec_time', REC_TIME))
-			# time_steps = int(request.args.get('time_steps', TIME_STEPS))
-
 			params = (R_0, inc_per, rec_time, time_steps)
 			plot = func.base_seir_model(params, time_steps, historical_df, last_updated)
 			payload = {'last_updated': last_updated, 
