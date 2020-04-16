@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from data.parameters import CDR
+from data.parameters import CDR, START_DATE
 import plotly.express as px
 import plotly
 import plotly.graph_objs as go
@@ -61,8 +61,8 @@ def _create_historical_df(global_confirmed, global_recovered, global_deaths):
 
 	return historical_df
 
-def create_plot_from_data(data):
-	fig = px.line(data.melt(id_vars='date'), x="date", y="value", color='variable')
+def create_plot_from_data(data, value_vars=['num_confirmed', 'num_recovered', 'num_deaths']):
+	fig = px.line(data.melt(id_vars='date', value_vars=value_vars), x="date", y="value", color='variable')
 	return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
 def init_social_demographic_data():
@@ -161,7 +161,7 @@ def _get_model_hyperparams(params):
 	beta = R_0*gamma
 	return beta, sigma, gamma
 
-def base_seir_model(params, time_steps, historical_df, start_date, 
+def base_seir_model(params, time_steps, historical_df, start_date, jsonify=True, 
 					value_vars = ['Exposed','Infected','Hospitalized', 'Total Deaths']):
 	'''
 	SEIR Model to forecast the outcome of the COVID-19 pandemic.
@@ -223,13 +223,46 @@ def base_seir_model(params, time_steps, historical_df, start_date,
 		'Recovered': R,
 		'Hospitalized': H,
 		'Total Deaths': D})
+
+	if not jsonify:
+		return results_df
 	
 	results_df = results_df.melt(id_vars='dates',value_vars = value_vars)
 	plot = px.line(results_df, x='dates', y='value', color='variable')
-
 	return json.dumps(plot, cls=plotly.utils.PlotlyJSONEncoder)
 
+def create_tuning_plot(params, historical_df, start_date=START_DATE, end_date=None,
+				value_vars = ['num_confirmed','num_deaths']):
+	# Plot from real data
+	if not end_date:
+		end_date = historical_df.iloc[-1].date
 
+	start_date = datetime.strptime(start_date, '%Y-%m-%d')
+	historical_df = historical_df[(historical_df.date >= start_date) & (historical_df.date <= end_date)]
+	# plot = create_plot_from_data(historical_df, value_vars)
+
+	# Simulation
+	time_steps = (end_date - start_date).days
+	simulation_df = base_seir_model(params, time_steps, historical_df, start_date, 
+		jsonify=False,
+		value_vars=['Infected', 'Exposed', 'Total Deaths'])
+
+	fig = go.Figure()
+
+	fig.add_trace(go.Scatter(x=historical_df.date, 
+		y=historical_df.num_confirmed.values, 
+		name='Actual Confirmed Cases',
+		line=dict(color='firebrick', width=2)))
+
+	fig.add_trace(go.Scatter(x=simulation_df.dates,
+		y=(simulation_df.Infected + simulation_df.Exposed),
+		name='Simulated Confirmed Cases',
+		line=dict(color='firebrick', width=2, dash='dash')))
+
+	fig.update_layout(xaxis_title='date',
+		yaxis_title='value')
+
+	return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
 
 
