@@ -114,4 +114,4 @@ def get_data_from_sliders():
 	return R_0, inc_per, rec_time, time_steps, start_date
 
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run()
