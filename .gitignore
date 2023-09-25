@@ -3,4 +3,4 @@ __pycache__
 notes.md
 settings.py
 .DS_Store
-test
+venv
